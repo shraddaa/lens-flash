@@ -1,0 +1,10 @@
+tables:
+  - name: query_events
+    sql: {{ load_sql('query_events') }}
+    description: Table containing information about query events
+    public: true
+    dimensions:
+      - name: method
+        column: method
+        type: string
+        description: query method

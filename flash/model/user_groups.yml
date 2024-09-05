@@ -1,0 +1,21 @@
+user_groups:
+  - name: testing
+    description: hello
+    api_scopes:
+      - meta
+      - data
+      - graphql
+      - jobs
+      - source
+    includes:
+      - users:id:shraddhaade
+      - users:id:aayushisolanki
+
+  - name: default
+    includes: "*"
+    api_scopes:
+      - meta
+      - data
+      - graphql
+      - jobs
+      - source

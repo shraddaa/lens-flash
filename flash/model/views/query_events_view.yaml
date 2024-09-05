@@ -1,0 +1,17 @@
+views:
+  - name: query_events_view
+    description: View containing query events information
+    public: true
+    meta:
+      export_to_iris: true
+      iris:
+        timeseries: query_events.timestamp
+        refresh:
+          every: 24h
+
+    tables:
+      - join_path: query_events
+        prefix: false
+        includes:
+          - method
+          
