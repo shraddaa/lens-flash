@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DataOS Concepts Check</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --panel: #f4f7f8;
+    --ink: #1e2a32;
+    --muted: #5b6b75;
+    --line: #d5dee2;
+    --teal: #0f766e;
+    --teal-soft: #e6f4f2;
+    --ok: #0f766e;
+    --ok-soft: #e6f4f2;
+    --bad: #b42318;
+    --bad-soft: #fdecea;
+    --focus: #0f766e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12191e;
+      --panel: #1b252b;
+      --ink: #e6edf0;
+      --muted: #9aabb4;
+      --line: #2e3d45;
+      --teal: #2dd4bf;
+      --teal-soft: #123a37;
+      --ok: #2dd4bf;
+      --ok-soft: #123a37;
+      --bad: #f97066;
+      --bad-soft: #3d1b19;
+      --focus: #2dd4bf;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 16px;
+  }
+  .quiz {
+    max-width: 720px;
+    margin: 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--panel);
+    padding: 20px;
+  }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 17px; margin: 0; }
+  .count { color: var(--muted); font-size: 13px; }
+  .bar { height: 4px; background: var(--line); border-radius: 2px; margin: 12px 0 18px; overflow: hidden; }
+  .bar > span { display: block; height: 100%; background: var(--teal); width: 0; transition: width .2s; }
+  fieldset { border: 0; margin: 0; padding: 0; }
+  legend { font-weight: 600; font-size: 16px; margin-bottom: 12px; padding: 0; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; background: var(--teal-soft); padding: 1px 4px; border-radius: 4px; }
+  .opt {
+    display: flex; gap: 10px; align-items: flex-start;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--bg);
+    padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+  }
+  .opt:hover { border-color: var(--teal); }
+  .opt input { margin-top: 4px; accent-color: var(--teal); }
+  .opt:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .opt.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+  .opt.locked { cursor: default; }
+  .feedback { margin-top: 12px; padding: 12px; border-radius: 8px; border-left: 3px solid var(--teal); background: var(--bg); }
+  .feedback.bad { border-left-color: var(--bad); }
+  .feedback strong { display: block; margin-bottom: 4px; }
+  .feedback a, .review a { color: var(--teal); }
+  .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+  button {
+    font: inherit; font-weight: 600; cursor: pointer;
+    border-radius: 8px; padding: 8px 16px;
+    border: 1px solid var(--teal); background: var(--teal); color: var(--bg);
+  }
+  button.secondary { background: transparent; color: var(--teal); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .score { font-size: 28px; font-weight: 700; margin: 4px 0 2px; }
+  .review { margin: 16px 0 0; padding: 0; list-style: none; }
+  .review li { border-top: 1px solid var(--line); padding: 10px 0; }
+  .review .q { font-weight: 600; }
+  .review .a { color: var(--muted); font-size: 14px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<main class="quiz" aria-labelledby="title">
+  <header>
+    <h1 id="title">DataOS concepts check</h1>
+    <span class="count" id="count"></span>
+  </header>
+  <div class="bar" aria-hidden="true"><span id="bar"></span></div>
+  <div id="stage"></div>
+  <div class="sr" aria-live="polite" id="live"></div>
+</main>
+
+<script>
+// Questions taken from the DataOS Academy Primer knowledge checks.
+const QUESTIONS = [
+  {
+    q: "Which element is NOT part of the formal DataOS definition of a Data Product?",
+    options: ["A named owner", "A published contract", "A dedicated BI dashboard", "A versioned lifecycle"],
+    answer: 2,
+    explain: "The formal definition names a self-contained, managed unit of data. That unit has a named owner, a published contract, named human and machine consumers, and a versioned lifecycle. A dashboard is a consumption surface. It is not part of the definition.",
+    source: "https://v2.dataos.info/readme-1"
+  },
+  {
+    q: "Which property means that a product's dependencies live inside the product, so a change by someone else does not silently break it?",
+    options: ["Addressable", "Independent (self-contained)", "Interoperable", "Natively accessible"],
+    answer: 1,
+    explain: "Independent (self-contained) means that the dependencies are inside the product. Interoperable means that the product works with other products and systems.",
+    source: "https://www.moderndata101.com/chapters/introduction-to-data-products"
+  },
+  {
+    q: "What does 'Productize absorbs Transform' mean in ELP?",
+    options: [
+      "Transformations are no longer needed",
+      "Transformation happens before loading, as in ETL",
+      "Transformation moves out of the product to the BI layer",
+      "The transform joins semantics, contract, policy, and serving in one authored object"
+    ],
+    answer: 3,
+    explain: "In ELP, the transform stops being a phase surrounded by tools. It becomes a property of the product. Transforms still exist, but the product now contains them.",
+    source: "https://v2.dataos.info/references/glossary"
+  },
+  {
+    q: "What does a Depot do?",
+    options: [
+      "Connects to a source, refers to a Secret, and exposes data via a UDL",
+      "Stores passwords in an encrypted vault",
+      "Runs transformations and materializes tables",
+      "Schedules Vulcan runs"
+    ],
+    answer: 0,
+    explain: "A Depot holds the connection details and refers to a Secret. You then address its data as <code>dataos://[depot]/[path]</code>. The Secret stores the credentials, and the engine runs the transforms.",
+    source: "https://v2.dataos.info/build/understand/connect-sources"
+  },
+  {
+    q: "A teammate says: 'Our Snowflake account is a Depot, so it must also be our engine.' What is the correct response?",
+    options: [
+      "Correct: every Depot is automatically an engine",
+      "Snowflake can be both, but you set up each role on its own",
+      "Snowflake cannot be used as an engine in DataOS",
+      "Engines are configured inside the Secret"
+    ],
+    answer: 1,
+    explain: "The docs separate a data connection (where data lives and how to authenticate) from an engine (where transforms run). One system can be both, but you configure each role separately.",
+    source: "https://v2.dataos.info/build/understand/connect-sources"
+  },
+  {
+    q: "What moves between the DataOS Instance and the Data Plane?",
+    options: [
+      "Full copies of customer tables for central processing",
+      "Only metadata, policies, operational telemetry, and execution instructions",
+      "Nothing. They are not connected",
+      "Raw data, but encrypted"
+    ],
+    answer: 1,
+    explain: "The Instance exchanges only metadata, policies, telemetry, and execution instructions. Customer data never leaves the environment of the customer.",
+    source: "https://v2.dataos.info/operate/architecture"
+  },
+  {
+    q: "A user in the <code>finance</code> Tenant finds a dataset in the catalog. The <code>marketing</code> Tenant ingested it. What can the user do?",
+    options: [
+      "Query it immediately, because metadata is shared",
+      "Nothing. They cannot see it at all",
+      "See its metadata, but read the data only with a Depot, Secret, and access policies in their own Tenant",
+      "Copy the Secret of the marketing Tenant"
+    ],
+    answer: 2,
+    explain: "Dataset metadata is visible across the Instance, but data access belongs to one Tenant. No Tenant inherits Secrets or Depots from another Tenant.",
+    source: "https://v2.dataos.info/operate/architecture"
+  },
+  {
+    q: "Which of these Resources is non-runnable?",
+    options: ["Depot", "Workflow", "Nilus", "Vulcan"],
+    answer: 0,
+    explain: "A Depot only describes a connection, so it has no logs or runtime state. Workflow, Nilus, and Vulcan run code, so they are runnable.",
+    source: "https://v2.dataos.info/references/resources/overview"
+  },
+  {
+    q: "Who creates Tenants and attaches the Data Plane?",
+    options: ["Tenant Admin", "Data Admin", "DataOS Operator", "Data Product Developer"],
+    answer: 2,
+    explain: "The Operator creates Tenants and attaches the Data Plane. This is Instance-level work. The authority of a Tenant Admin stops at the Tenant boundary.",
+    source: "https://v2.dataos.info/operate/dataos-operator/operator"
+  },
+  {
+    q: "How does an AI assistant access data through Data Product MCP?",
+    options: [
+      "It calls governed MCP tools with the user's own credentials",
+      "It receives a direct database connection with admin rights",
+      "It reads a nightly export of every table",
+      "It goes around policies to answer faster"
+    ],
+    answer: 0,
+    explain: "Data Product MCP does not give direct database access. Each request carries the credentials of the user. The request goes through the same policy enforcement as the rest of the platform.",
+    source: "https://v2.dataos.info/consume/consume-with-ai/overview"
+  }
+];
+
+const stage = document.getElementById("stage");
+const live = document.getElementById("live");
+const count = document.getElementById("count");
+const bar = document.getElementById("bar");
+
+let order, i, picks;
+
+function start() {
+  order = QUESTIONS.map((_, k) => k);
+  i = 0;
+  picks = [];
+  render();
+}
+
+function progress(done) {
+  count.textContent = done < QUESTIONS.length ? `Question ${done + 1} of ${QUESTIONS.length}` : `${QUESTIONS.length} of ${QUESTIONS.length}`;
+  bar.style.width = `${(done / QUESTIONS.length) * 100}%`;
+}
+
+function render() {
+  if (i >= order.length) return results();
+  progress(i);
+  const Q = QUESTIONS[order[i]];
+  const name = `q${i}`;
+  stage.innerHTML = `
+    <form id="form">
+      <fieldset>
+        <legend>${Q.q}</legend>
+        ${Q.options.map((o, k) => `
+          <label class="opt" data-k="${k}">
+            <input type="radio" name="${name}" value="${k}">
+            <span>${o}</span>
+          </label>`).join("")}
+      </fieldset>
+      <div id="fb"></div>
+      <div class="actions">
+        <button type="submit" id="check" disabled>Check answer</button>
+      </div>
+    </form>`;
+  const form = document.getElementById("form");
+  const check = document.getElementById("check");
+  form.addEventListener("change", () => { check.disabled = false; });
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    if (check.dataset.next) { i++; return render(); }
+    const sel = form.querySelector("input:checked");
+    if (!sel) return;
+    grade(Q, +sel.value, form, check);
+  });
+  form.querySelector("input").focus();
+}
+
+function grade(Q, pick, form, check) {
+  picks[i] = pick;
+  const right = pick === Q.answer;
+  form.querySelectorAll(".opt").forEach(el => {
+    const k = +el.dataset.k;
+    el.classList.add("locked");
+    el.querySelector("input").disabled = true;
+    if (k === Q.answer) el.classList.add("correct");
+    else if (k === pick) el.classList.add("wrong");
+  });
+  const fb = document.getElementById("fb");
+  fb.innerHTML = `
+    <div class="feedback ${right ? "" : "bad"}">
+      <strong>${right ? "Correct" : "Not quite"}</strong>
+      ${Q.explain}
+      <div><a href="${Q.source}" target="_blank" rel="noopener">Read more in the docs</a></div>
+    </div>`;
+  live.textContent = (right ? "Correct. " : "Not quite. ") + fb.textContent.replace(/\s+/g, " ").trim();
+  check.textContent = i === order.length - 1 ? "See results" : "Next question";
+  check.dataset.next = "1";
+  check.focus();
+}
+
+function results() {
+  progress(QUESTIONS.length);
+  const score = order.filter((q, k) => picks[k] === QUESTIONS[q].answer).length;
+  const missed = order.map((q, k) => ({ Q: QUESTIONS[q], pick: picks[k] })).filter(x => x.pick !== x.Q.answer);
+  const msg = score === QUESTIONS.length ? "You have the core mental model."
+    : score >= 7 ? "Solid. Review the ones you missed."
+    : "Worth revisiting the Primer concepts below.";
+  stage.innerHTML = `
+    <div>
+      <div class="score" tabindex="-1" id="score">${score} / ${QUESTIONS.length}</div>
+      <div>${msg}</div>
+      ${missed.length ? `<ul class="review">${missed.map(x => `
+        <li>
+          <div class="q">${x.Q.q}</div>
+          <div class="a">Answer: ${x.Q.options[x.Q.answer]}. <a href="${x.Q.source}" target="_blank" rel="noopener">Docs</a></div>
+        </li>`).join("")}</ul>` : ""}
+      <div class="actions">
+        <button type="button" class="secondary" id="retry">Try again</button>
+      </div>
+    </div>`;
+  live.textContent = `You scored ${score} out of ${QUESTIONS.length}.`;
+  document.getElementById("score").focus();
+  document.getElementById("retry").addEventListener("click", start);
+}
+
+start();
+</script>
+</body>
+</html>
